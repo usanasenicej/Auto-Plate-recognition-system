@@ -1,5 +1,15 @@
 import cv2
 import pytesseract
+import shutil
+from config import TESSERACT_CONFIG, OCR_RESIZE_FACTOR
+
+def check_tesseract():
+    """Checks if Tesseract is installed and reachable."""
+    if shutil.which("tesseract") is None:
+        # If not in path, you can set it manually here for the user
+        # pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+        return False
+    return True
 
 def ocr_plate_text(aligned_plate):
     """
@@ -9,8 +19,11 @@ def ocr_plate_text(aligned_plate):
     Returns:
         Extracted raw string
     """
+    if not check_tesseract():
+        return "TESSERACT_NOT_FOUND"
+
     # 1. Resize for better OCR (increase size)
-    resized = cv2.resize(aligned_plate, None, fx=2.5, fy=2.5, interpolation=cv2.INTER_CUBIC)
+    resized = cv2.resize(aligned_plate, None, fx=OCR_RESIZE_FACTOR, fy=OCR_RESIZE_FACTOR, interpolation=cv2.INTER_CUBIC)
 
     # 2. Denoising
     denoised = cv2.GaussianBlur(resized, (5, 5), 0)
