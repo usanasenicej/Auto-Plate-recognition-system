@@ -6,7 +6,6 @@ SCREENSHOT_DIR = "screenshots"
 DATA_CSV_PATH = "data/plates.csv"
 
 # 🛡️ Detection Settings
-# Aspect ratio for standard license plates (Width / Height)
 PLATE_ASPECT_RATIO_RANGE = (2.0, 5.5)
 MIN_PLATE_AREA = 500
 MAX_PLATE_AREA = 100000
@@ -22,3 +21,6 @@ OCR_RESIZE_FACTOR = 2.5
 # ⏱️ Temporal Tracking
 CONFIDENCE_THRESHOLD = 3
 TIMEOUT_SECONDS = 5
+
+# 🛠️ Debug Mode (Shows intermediate pipeline steps)
+DEBUG_MODE = True
