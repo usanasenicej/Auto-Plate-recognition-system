@@ -40,7 +40,7 @@ def save_to_csv(plate_text, csv_path):
 def run_pipeline():
     """
     Main ANPR Pipeline:
-    Camera -> Detection -> Alignment -> OCR -> Validation -> Temporal -> Save
+    Camera (or Static Image Fallback) -> Detection -> Alignment -> OCR -> Validation -> Temporal -> Save
     """
     # 1. Initialize settings
     cap = cv2.VideoCapture(0) # Default webcam
@@ -48,16 +48,33 @@ def run_pipeline():
     csv_file = os.path.join("data", "plates.csv")
     screenshot_dir = "screenshots"
     
-    print("--- [STARTING ANPR PIPELINE] ---")
+    # Check if webcam is available, otherwise use simulation mode
+    is_webcam = cap.isOpened()
+    if not is_webcam:
+        print("--- [WARNING]: No webcam detected! Entering Simulation Mode... ---")
+        # Load one of the test images as a fallback to show the pipeline works
+        fallback_img_path = os.path.join(screenshot_dir, "nyabihu_test_1.png")
+        if os.path.exists(fallback_img_path):
+            test_frame = cv2.imread(fallback_img_path)
+            print(f"--- [SIMULATION]: Using {fallback_img_path} for testing ---")
+        else:
+            print("--- [ERROR]: Neither webcam nor test images found! ---")
+            return
+    else:
+        print("--- [STARTING ANPR PIPELINE] ---")
+    
     print("Press 'q' inside the window to exit.")
     print("Press 's' to manually save a screenshot.")
 
     while True:
-        # 1. Capture frame
-        ret, frame = cap.read()
-        if not ret:
-            print("Failed to capture from webcam. Exiting...")
-            break
+        # 1. Capture/Load frame
+        if is_webcam:
+            ret, frame = cap.read()
+            if not ret: break
+        else:
+            frame = test_frame.copy()
+            # Simulate a small delay in simulation mode
+            time.sleep(0.1)
 
         # 2. Detection (Classical CV)
         plate_cnt = detect_plate(frame)
